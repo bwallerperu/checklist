@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Checklist Catalog</h1>
+<div class="checklist-grid">
+    {% for checklist in checklists %}
+    <div class="card checklist-card">
+        <h2>{{ checklist.title }}</h2>
+        <p style="color: var(--text-muted)">{{ checklist.steps|length }} steps</p>
+        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+            <a href="{{ url_for('view_checklist', id=checklist.id) }}" class="btn">Execute</a>
+            <!-- Minimal links for later features -->
+            <!-- <a href="{{ url_for('view_results', id=checklist.id) }}" style="color: var(--primary-color); padding: 0.75rem;">View Results</a> -->
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center;">
+        <h3>No checklists found</h3>
+        <p>Get started by creating your first checklist.</p>
+        <a href="{{ url_for('create') }}" class="btn">Create Checklist</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

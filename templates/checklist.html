@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ checklist.title }}</h1>
+    <form action="{{ url_for('submit', id=checklist.id) }}" method="POST">
+        {% for step in checklist.steps %}
+        <div class="form-group">
+            <label>{{ step.description }}</label>
+
+            {% if step.type == 'boolean' %}
+            <select name="step_{{ loop.index0 }}">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            {% elif step.type == 'numeric' %}
+            <input type="number" name="step_{{ loop.index0 }}" step="any" required>
+
+            {% else %}
+            <input type="text" name="step_{{ loop.index0 }}" required>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn">Submit Checklist</button>
+    </form>
+</div>
+{% endblock %}

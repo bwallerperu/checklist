@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1>Create New Checklist</h1>
+    <form action="{{ url_for('create') }}" method="POST">
+        <div class="form-group">
+            <label for="title">Checklist Title</label>
+            <input type="text" id="title" name="title" required placeholder="e.g., Daily Server Maintenance">
+        </div>
+
+        <h3>Process Steps</h3>
+        <div id="steps-container">
+            <!-- Steps will be added here -->
+            <div class="step-item">
+                <input type="text" name="step_description" placeholder="Step description" required>
+                <select name="step_type">
+                    <option value="boolean">Yes/No</option>
+                    <option value="numeric">Numeric</option>
+                    <option value="text">Text Input</option>
+                </select>
+                <button type="button" class="step-remove" onclick="removeStep(this)">Remove</button>
+            </div>
+        </div>
+
+        <button type="button" class="btn" onclick="addStep()"
+            style="background: #e5e7eb; color: #374151; margin-bottom: 2rem;">+ Add Step</button>
+        <br>
+        <button type="submit" class="btn">Save Checklist</button>
+    </form>
+</div>
+
+<script>
+    function addStep() {
+        const container = document.getElementById('steps-container');
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'step-item';
+        stepDiv.innerHTML = `
+            <input type="text" name="step_description" placeholder="Step description" required>
+            <select name="step_type">
+                <option value="boolean">Yes/No</option>
+                <option value="numeric">Numeric</option>
+                <option value="text">Text Input</option>
+            </select>
+            <button type="button" class="step-remove" onclick="removeStep(this)">Remove</button>
+        `;
+        container.appendChild(stepDiv);
+    }
+
+    function removeStep(btn) {
+        const container = document.getElementById('steps-container');
+        if (container.children.length > 1) {
+            btn.parentElement.remove();
+        } else {
+            alert("You must have at least one step.");
+        }
+    }
+</script>
+{% endblock %}

@@ -2,3 +2,7 @@
 Timestamp: 2026-02-12T22:35:52-05:00
 Prompt: Build a prompt to say hello
 ---
+---
+Timestamp: 2026-02-12T22:57:02-05:00
+Prompt: I want you to write a python 3.14 app using the flask package using an HTML interface to allow scaling to different platforms that I will deploy to Google cloud Run using a firestore database to save the data. The application is meant to present to the user an environment to build checklists and be able to store them for future deployment. the program will have a catalog of all the checklists that have bee created and can be used at any time storing the user that  deployed it and the results of the actual chacklist in a separate database. In esence there will be 2 different databases ... one that stores the actual configuration of the chacklists for deployment and the other one for the results of the completed check lists. For the creation of the checklists we will need to have an entry for the "Process Step" and a "Result" field that can either be a T/F or a Numeric Value or a simple text Box. Malke the presentation of the checklist for the final user a nice user interface for the environment.
+---
