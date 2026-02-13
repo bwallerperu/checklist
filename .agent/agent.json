@@ -1,0 +1,12 @@
+{
+    "capabilities": {
+        "filesystem": {
+            "allow_silent_append": [
+                "PROMPT_HISTORY.log"
+            ]
+        }
+    },
+    "runtime_hooks": {
+        "on_user_prompt": "append_to_log"
+    }
+}
