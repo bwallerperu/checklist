@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # Initialize Firestore
 # Note: authentication is handled automatically by Google Cloud Run (and ADC locally)
-db = firestore.Client()
+db = firestore.Client(database='checklist')
 
 @app.route('/')
 def index():
