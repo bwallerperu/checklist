@@ -1,29 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h1>{{ checklist.title }}</h1>
-    <form action="{{ url_for('submit', id=checklist.id) }}" method="POST">
-        {% for step in checklist.steps %}
-        <div class="form-group">
-            <label>{{ step.description }}</label>
+<div class="admin-form-container" style="max-width: 900px; margin: 3rem auto; padding: 0 1.5rem;">
+    <div style="margin-bottom: 3rem;">
+        <h1 class="text-3xl font-bold" style="margin-bottom: 0.5rem;">Ejecutar: {{ checklist.title }}</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Complete todos los pasos necesarios para finalizar este procedimiento.</p>
+    </div>
 
-            {% if step.type == 'boolean' %}
-            <select name="step_{{ loop.index0 }}">
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-            </select>
+    <form action="{{ url_for('submit', id=checklist.id) }}" method="POST" class="card bg-white p-10 rounded-xl shadow-sm border border-gray-100">
+        <div class="space-y-6">
+            {% for step in checklist.steps %}
+            <div class="execution-row" style="display: flex; align-items: center; gap: 2rem; padding: 1.25rem 0; border-bottom: 1px solid #f1f5f9;">
+                <label style="flex: 1; font-size: 1.125rem; font-weight: 600; color: #1e293b; margin: 0;">
+                    {{ step.description }}
+                </label>
 
-            {% elif step.type == 'numeric' %}
-            <input type="number" name="step_{{ loop.index0 }}" step="any" required>
+                <div class="execution-input-wrapper" style="flex: 0 0 240px; display: flex; justify-content: flex-end;">
+                    {% if step.type == 'boolean' %}
+                    <label class="execution-checkbox" style="display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s; position: relative;">
+                        <input type="checkbox" name="step_{{ loop.index0 }}" style="position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0;">
+                        <div class="check-mark" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="4" viewBox="0 0 24 24" style="color: var(--primary-color);">
+                                <path d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </label>
 
-            {% else %}
-            <input type="text" name="step_{{ loop.index0 }}" required>
-            {% endif %}
+                    {% elif step.type == 'numeric' %}
+                    <input type="number" name="step_{{ loop.index0 }}" step="any" required placeholder="0.00" style="font-size: 1.125rem; height: 48px; font-weight: 600; text-align: center;">
+
+                    {% else %}
+                    <input type="text" name="step_{{ loop.index0 }}" required placeholder="Escriba aquí..." style="font-size: 1.125rem; height: 48px; font-weight: 600;">
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
 
-        <button type="submit" class="btn">Submit Checklist</button>
+        <div class="form-footer" style="display: flex; justify-content: flex-end; align-items: center; gap: 1.5rem; margin-top: 4rem; padding-top: 2rem; border-top: 2px solid #f1f5f9;">
+            <a href="{{ url_for('index') }}" class="btn btn-outline" style="min-width: 140px; border-color: transparent; color: var(--text-muted); font-weight: 700;">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary" style="min-width: 240px; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);">
+                Enviar Checklist
+            </button>
+        </div>
     </form>
 </div>
+
+<style>
+    .check-mark svg { display: none; }
+    .execution-checkbox input:checked ~ .check-mark svg { display: block; }
+    .execution-checkbox:has(input:checked) { background: #fff !important; border-color: var(--primary-color) !important; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.15); }
+    .execution-checkbox:hover { border-color: var(--primary-color); background: #f1f5f9; }
+</style>
 {% endblock %}

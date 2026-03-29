@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-form-container" style="max-width: 900px; margin: 3rem auto; padding: 0 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; gap: 2rem;">
+        <div>
+            <h1 class="text-3xl font-bold" style="margin-bottom: 0.5rem;">Editar Lista: {{ checklist.title }}</h1>
+            <p style="color: var(--text-muted); font-size: 1rem;">Modifique los pasos o la configuración general de este procedimiento.</p>
+        </div>
+        <form action="{{ url_for('delete_checklist', id=checklist.id) }}" method="POST" onsubmit="return confirm('¿Está seguro de que desea eliminar esta lista? Esta acción no se puede deshacer.');">
+            <button type="submit" class="logout-pill-btn" style="border-radius: 0.75rem; padding: 0.75rem 1.25rem;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 0.5rem;"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Eliminar Lista
+            </button>
+        </form>
+    </div>
+
+    <form action="{{ url_for('edit_checklist', id=checklist.id) }}" method="POST" class="card bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+        <div class="form-group mb-10" style="border-bottom: 1px solid var(--border-color); padding-bottom: 2rem;">
+            <label for="title" class="label-small" style="color: var(--primary-color);">Información General</label>
+            <input type="text" id="title" name="title" required value="{{ checklist.title }}" placeholder="Ej: Título del procedimiento" style="font-weight: 600; font-size: 1.125rem;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="label-small" style="margin: 0;">Pasos del Procedimiento</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Modifique las descripciones o el orden de los pasos.</span>
+        </div>
+
+        <div id="steps-container" class="space-y-4 mb-8">
+            {% for step in checklist.steps %}
+            <div class="step-item horizontal-step">
+                <div class="step-number">{{ loop.index }}</div>
+                <div class="step-desc-wrapper">
+                    <input type="text" name="step_description" value="{{ step.description }}" required placeholder="Descripción del paso">
+                </div>
+                <div class="step-type-wrapper">
+                    <select name="step_type">
+                        <option value="boolean" {% if step.type == 'boolean' %}selected{% endif %}>Sí / No</option>
+                        <option value="numeric" {% if step.type == 'numeric' %}selected{% endif %}>Numérico</option>
+                        <option value="text" {% if step.type == 'text' %}selected{% endif %}>Texto Libre</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-step-remove" onclick="removeStep(this)" title="Eliminar paso">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); margin-top: 3rem; padding-top: 2rem;">
+            <button type="button" class="btn btn-outline" onclick="addStep()" style="border-style: dashed; background: #f8fafc; min-width: 180px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 0.5rem;"><path d="M12 5v14M5 12h14"></path></svg>
+                Añadir Otro Paso
+            </button>
+            
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-outline" style="min-width: 140px; border-color: transparent;">Cancelar</a>
+                <button type="submit" class="btn btn-primary" style="min-width: 200px;">
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    .horizontal-step {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #fafafa;
+        border: 1px solid #f1f5f9;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+    }
+    .horizontal-step:hover { background: #f8fafc; border-color: #e2e8f0; }
+
+    .step-number {
+        width: 28px;
+        height: 28px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .step-desc-wrapper { flex: 1; }
+    .step-type-wrapper { flex: 0 0 180px; }
+
+    .btn-step-remove {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .btn-step-remove:hover { background: #fee2e2; color: #ef4444; }
+
+    .label-small { display: block; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; font-size: 0.75rem; margin-bottom: 0.5rem; }
+</style>
+
+<script>
+    function addStep() {
+        const container = document.getElementById('steps-container');
+        const stepNum = container.children.length + 1;
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'step-item horizontal-step';
+        stepDiv.innerHTML = `
+            <div class="step-number">${stepNum}</div>
+            <div class="step-desc-wrapper">
+                <input type="text" name="step_description" placeholder="Descripción del paso" required>
+            </div>
+            <div class="step-type-wrapper">
+                <select name="step_type">
+                    <option value="boolean">Sí / No</option>
+                    <option value="numeric">Numérico</option>
+                    <option value="text">Texto Libre</option>
+                </select>
+            </div>
+            <button type="button" class="btn-step-remove" onclick="removeStep(this)" title="Eliminar paso">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        `;
+        container.appendChild(stepDiv);
+        updateStepNumbers();
+    }
+
+    function removeStep(btn) {
+        const container = document.getElementById('steps-container');
+        if (container.children.length > 1) {
+            btn.closest('.horizontal-step').remove();
+            updateStepNumbers();
+        } else {
+            alert("Su checklist debe tener al menos un paso operativo.");
+        }
+    }
+
+    function updateStepNumbers() {
+        const steps = document.querySelectorAll('.step-number');
+        steps.forEach((div, index) => {
+            div.textContent = index + 1;
+        });
+    }
+</script>
+{% endblock %}

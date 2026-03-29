@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-container" style="max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem;">
+    <h1 class="text-3xl font-bold mb-8" style="color: #1e293b; letter-spacing: -0.025em;">Configuración de Usuario</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages" style="margin-bottom: 2rem;">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" style="margin-bottom: 0.5rem; padding: 1rem; border-radius: 0.5rem; font-weight: 600;">{{ message }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="card bg-white p-10 rounded-2xl shadow-sm border border-gray-100 mb-8" style="border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <form method="POST" class="auth-form">
+            <!-- Section Title -->
+            <div style="margin-bottom: 2rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
+                <h2 class="text-xl font-bold" style="color: #1e293b;">Información del Perfil</h2>
+            </div>
+            
+            <!-- Row 1: Username | Email -->
+            <div class="grid-row-2 mb-10">
+                <div class="form-group">
+                    <label for="username" class="label-small">Nombre de Usuario</label>
+                    <input type="text" id="username" name="username" value="{{ current_user.username }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="label-small">Correo Electrónico</label>
+                    <input type="text" value="{{ current_user.email }}" disabled style="background-color: #f8fafc; color: #64748b; border-color: #e2e8f0; cursor: not-allowed;">
+                </div>
+            </div>
+
+            <!-- Row 2: Account Status Box (Match Image) -->
+            <div class="mb-10" style="background-color: #f8fafc; padding: 2rem; border-radius: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <label class="label-small" style="font-size: 0.7rem; color: #475569;">Tipo de Cuenta</label>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="badge badge-provider-{{ current_user.auth_provider }}" style="background: #e0f2fe; color: #0369a1; padding: 0.25rem 0.875rem; font-size: 0.8125rem;">
+                            {{ current_user.auth_provider|capitalize }}
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <label class="label-small" style="font-size: 0.7rem; color: #475569;">Rol del Usuario</label>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="badge {% if current_user.is_admin %}badge-admin{% else %}badge-user{% endif %}" style="background: #f3e8ff; color: #7e22ce; padding: 0.25rem 0.875rem; font-size: 0.8125rem;">
+                            {% if current_user.is_admin %}Administrador del Sistema{% else %}Usuario Estándar{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Section -->
+            <div class="security-section pt-4 mt-12">
+                <h3 class="text-xl font-bold mb-8" style="color: #1e293b;">Actualizar Seguridad</h3>
+                {% if current_user.auth_provider == 'local' %}
+                <div class="grid-row-2">
+                    <div class="form-group">
+                        <label for="new_password" class="label-small">Nueva Contraseña</label>
+                        <input type="password" id="new_password" name="new_password" placeholder="Mínimo 8 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password" class="label-small">Confirmar Contraseña</label>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Repita la contraseña">
+                    </div>
+                </div>
+                {% else %}
+                <div class="badge badge-provider-google" style="padding: 1.25rem; border-radius: 0.75rem; width: 100%; display: flex; align-items: center; gap: 1rem; background: #fff1f2; border: 1px solid #fee2e2; color: #991b1b; font-weight: 600;">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.545 11.027L21.114 11.027C21.313 11.666 21.439 12.36 21.439 13.123C21.439 18.361 17.915 22.049 12.545 22.049C6.837 22.049 2.227 17.439 2.227 11.731C2.227 6.023 6.837 1.413 12.545 1.413C15.337 1.413 17.674 2.437 19.467 4.102L15.932 7.514C14.992 6.611 13.916 6.136 12.545 6.136C9.539 6.136 7.098 8.441 7.098 12.284C7.098 16.128 9.539 18.432 12.545 18.432C15.551 18.432 17.919 16.88 17.919 13.792L12.545 13.792L12.545 11.027Z"></path></svg>
+                    <span>Seguridad gestionada externamente con Google.</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="actions-footer mt-16 pt-8" style="background-color: transparent; display: flex; justify-content: space-between; align-items: center;">
+                <a href="{{ url_for('index') }}" class="btn btn-outline" style="min-width: 160px; height: 52px; border-radius: 0.75rem; font-weight: 700;">Cancelar</a>
+                <button type="submit" class="btn btn-primary" style="min-width: 200px; height: 52px; border-radius: 0.75rem; background-color: #3b82f6; font-weight: 700; font-size: 1rem;">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .label-small { 
+        display: block; 
+        text-transform: uppercase; 
+        letter-spacing: 0.05em; 
+        color: #64748b; 
+        font-weight: 800; 
+        font-size: 0.75rem; 
+        margin-bottom: 0.75rem;
+    }
+    .grid-row-2 { 
+        display: grid; 
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    @media (min-width: 768px) {
+        .grid-row-2 { 
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    .auth-form input {
+        width: 100%;
+        height: 52px;
+        padding: 0 1.5rem;
+        border: 1.5px solid #3b82f6;
+        border-radius: 0.875rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        transition: all 0.2s ease;
+        background-color: #fff;
+    }
+    .auth-form input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        background-color: #fff;
+    }
+    .auth-form input::placeholder {
+        color: #94a3b8;
+        font-weight: 600;
+    }
+    .auth-form input:disabled {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+        color: #94a3b8 !important;
+        cursor: not-allowed;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}

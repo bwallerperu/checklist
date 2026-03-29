@@ -1,59 +1,147 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-    <h1>Create New Checklist</h1>
-    <form action="{{ url_for('create') }}" method="POST">
-        <div class="form-group">
-            <label for="title">Checklist Title</label>
-            <input type="text" id="title" name="title" required placeholder="e.g., Daily Server Maintenance">
+<div class="admin-form-container" style="max-width: 900px; margin: 3rem auto; padding: 0 1.5rem;">
+    <div style="margin-bottom: 2.5rem;">
+        <h1 class="text-3xl font-bold" style="margin-bottom: 0.5rem;">Crear Nueva Lista de Chequeo</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Defina el título y los pasos operativos para su nuevo procedimiento.</p>
+    </div>
+
+    <form action="{{ url_for('create') }}" method="POST" class="card bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+        <div class="form-group mb-10" style="border-bottom: 1px solid var(--border-color); padding-bottom: 2rem;">
+            <label for="title" class="label-small" style="color: var(--primary-color);">Información General</label>
+            <input type="text" id="title" name="title" required placeholder="Ej: Mantenimiento Diario de Servidores" style="font-weight: 600; font-size: 1.125rem;">
         </div>
 
-        <h3>Process Steps</h3>
-        <div id="steps-container">
-            <!-- Steps will be added here -->
-            <div class="step-item">
-                <input type="text" name="step_description" placeholder="Step description" required>
-                <select name="step_type">
-                    <option value="boolean">Yes/No</option>
-                    <option value="numeric">Numeric</option>
-                    <option value="text">Text Input</option>
-                </select>
-                <button type="button" class="step-remove" onclick="removeStep(this)">Remove</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="label-small" style="margin: 0;">Pasos del Procedimiento</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Defina la descripción y el tipo de respuesta esperada.</span>
+        </div>
+
+        <div id="steps-container" class="space-y-4 mb-8">
+            <!-- Initial Step -->
+            <div class="step-item horizontal-step">
+                <div class="step-number">1</div>
+                <div class="step-desc-wrapper">
+                    <input type="text" name="step_description" placeholder="Descripción del paso (ej: Verificar luces del rack)" required>
+                </div>
+                <div class="step-type-wrapper">
+                    <select name="step_type">
+                        <option value="boolean">Sí / No</option>
+                        <option value="numeric">Numérico</option>
+                        <option value="text">Texto Libre</option>
+                    </select>
+                </div>
+                <button type="button" class="btn-step-remove" onclick="removeStep(this)" title="Eliminar paso">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
         </div>
 
-        <button type="button" class="btn" onclick="addStep()"
-            style="background: #e5e7eb; color: #374151; margin-bottom: 2rem;">+ Add Step</button>
-        <br>
-        <button type="submit" class="btn">Save Checklist</button>
+        <div class="form-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); margin-top: 3rem; padding-top: 2rem;">
+            <button type="button" class="btn btn-outline" onclick="addStep()" style="border-style: dashed; background: #f8fafc; min-width: 180px;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 0.5rem;"><path d="M12 5v14M5 12h14"></path></svg>
+                Añadir Paso
+            </button>
+            
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-outline" style="min-width: 140px; border-color: transparent;">Cancelar</a>
+                <button type="submit" class="btn btn-primary" style="min-width: 200px;">
+                    Guardar Checklist
+                </button>
+            </div>
+        </div>
     </form>
 </div>
+
+<style>
+    .horizontal-step {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #fafafa;
+        border: 1px solid #f1f5f9;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+    }
+    .horizontal-step:hover { background: #f8fafc; border-color: #e2e8f0; }
+
+    .step-number {
+        width: 28px;
+        height: 28px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .step-desc-wrapper { flex: 1; }
+    .step-type-wrapper { flex: 0 0 180px; }
+
+    .btn-step-remove {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .btn-step-remove:hover { background: #fee2e2; color: #ef4444; }
+
+    .label-small { display: block; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; font-size: 0.75rem; margin-bottom: 0.5rem; }
+</style>
 
 <script>
     function addStep() {
         const container = document.getElementById('steps-container');
+        const stepNum = container.children.length + 1;
         const stepDiv = document.createElement('div');
-        stepDiv.className = 'step-item';
+        stepDiv.className = 'step-item horizontal-step';
         stepDiv.innerHTML = `
-            <input type="text" name="step_description" placeholder="Step description" required>
-            <select name="step_type">
-                <option value="boolean">Yes/No</option>
-                <option value="numeric">Numeric</option>
-                <option value="text">Text Input</option>
-            </select>
-            <button type="button" class="step-remove" onclick="removeStep(this)">Remove</button>
+            <div class="step-number">${stepNum}</div>
+            <div class="step-desc-wrapper">
+                <input type="text" name="step_description" placeholder="Descripción del paso" required>
+            </div>
+            <div class="step-type-wrapper">
+                <select name="step_type">
+                    <option value="boolean">Sí / No</option>
+                    <option value="numeric">Numérico</option>
+                    <option value="text">Texto Libre</option>
+                </select>
+            </div>
+            <button type="button" class="btn-step-remove" onclick="removeStep(this)" title="Eliminar paso">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         `;
         container.appendChild(stepDiv);
+        updateStepNumbers();
     }
 
     function removeStep(btn) {
         const container = document.getElementById('steps-container');
         if (container.children.length > 1) {
-            btn.parentElement.remove();
+            btn.closest('.horizontal-step').remove();
+            updateStepNumbers();
         } else {
-            alert("You must have at least one step.");
+            alert("Su checklist debe tener al menos un paso operativo.");
         }
+    }
+
+    function updateStepNumbers() {
+        const steps = document.querySelectorAll('.step-number');
+        steps.forEach((div, index) => {
+            div.textContent = index + 1;
+        });
     }
 </script>
 {% endblock %}

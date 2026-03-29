@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-form-container" style="max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 class="text-3xl font-bold" style="color: #1e293b; letter-spacing: -0.025em; margin-bottom: 0.5rem;">
+            {% if user %}Configuración de Usuario{% else %}Nuevo Usuario{% endif %}
+        </h1>
+        <p style="color: #64748b; font-weight: 500;">
+            {{ 'Modifique los datos y permisos del usuario seleccionado.' if user else 'Registre un nuevo acceso para la plataforma.' }}
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages" style="margin-bottom: 2rem;">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" style="margin-bottom: 0.5rem; padding: 1rem; border-radius: 0.5rem; font-weight: 600;">{{ message }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="card bg-white p-10 rounded-2xl shadow-sm border border-gray-100 mb-8" style="border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+        <form method="POST" class="auth-form">
+            <!-- Section 1: Profile Information -->
+            <div style="margin-bottom: 2rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
+                <h2 class="text-xl font-bold" style="color: #1e293b;">Información del Perfil</h2>
+            </div>
+            
+            <div class="grid-row-2 mb-10">
+                <div class="form-group">
+                    <label for="username" class="label-small">Nombre de Usuario</label>
+                    <input type="text" id="username" name="username" value="{{ user.username if user else '' }}" required placeholder="Ej: Juan Perez">
+                </div>
+                <div class="form-group">
+                    <label for="email" class="label-small">Correo Electrónico</label>
+                    <input type="email" id="email" name="email" value="{{ user.email if user else '' }}" required placeholder="nombre@ejemplo.com">
+                </div>
+            </div>
+
+            <!-- Section 2: Permissions (Styled like the info box in profile) -->
+            <div class="mb-10" style="background-color: #f8fafc; padding: 2rem; border-radius: 1rem;">
+                <label class="label-small" style="font-size: 0.7rem; color: #475569; margin-bottom: 1.5rem;">Permisos y Estado de Cuenta</label>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="is_admin" {% if user and user.is_admin %}checked{% endif %}>
+                        <div class="checkbox-box"></div>
+                        <div class="checkbox-text">
+                            <strong>Privilegios de Administrador</strong>
+                            <span>Gestión de otros usuarios y configuraciones.</span>
+                        </div>
+                    </label>
+                    
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="is_approved" {% if not user or user.is_approved %}checked{% endif %}>
+                        <div class="checkbox-box"></div>
+                        <div class="checkbox-text">
+                            <strong>Cuenta Activa / Aprobada</strong>
+                            <span>Permite el inicio de sesión inmediato.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section 3: Security (Only if new user or specifically requested, but here we add it for new user) -->
+            {% if not user %}
+            <div class="security-section pt-4 mt-12">
+                <h3 class="text-xl font-bold mb-8" style="color: #1e293b;">Seguridad de la Cuenta</h3>
+                <div class="grid-row-2">
+                    <div class="form-group">
+                        <label for="password" class="label-small">Contraseña Inicial</label>
+                        <input type="password" id="password" name="password" required placeholder="Mínimo 8 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label class="label-small">Confirmación</label>
+                        <input type="password" placeholder="Repita la contraseña (opcional aquí)">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Footer Buttons -->
+            <div class="actions-footer mt-16 pt-8" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <a href="{{ url_for('admin.list_users') }}" class="btn btn-outline" style="min-width: 160px; height: 52px; border-radius: 0.75rem; font-weight: 700;">Cancelar</a>
+                <button type="submit" class="btn btn-primary" style="min-width: 200px; height: 52px; border-radius: 0.75rem; background-color: #3b82f6; font-weight: 700; font-size: 1rem;">
+                    {% if user %}Guardar Cambios{% else %}Crear Usuario{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .label-small { 
+        display: block; 
+        text-transform: uppercase; 
+        letter-spacing: 0.05em; 
+        color: #64748b; 
+        font-weight: 800; 
+        font-size: 0.75rem; 
+        margin-bottom: 0.75rem; 
+    }
+    
+    .grid-row-2 { 
+        display: grid; 
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    @media (min-width: 768px) {
+        .grid-row-2 { 
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    
+    .auth-form input {
+        width: 100%;
+        height: 52px;
+        padding: 0 1.5rem;
+        border: 1.5px solid #3b82f6;
+        border-radius: 0.875rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1e293b;
+        transition: all 0.2s ease;
+        background-color: #fff;
+    }
+    .auth-form input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        background-color: #fff;
+    }
+    .auth-form input::placeholder {
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .custom-checkbox { display: flex; align-items: flex-start; gap: 1rem; cursor: pointer; position: relative; }
+    .custom-checkbox input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
+    .checkbox-box { height: 1.5rem; width: 1.5rem; background-color: #fff; border: 2px solid #cbd5e1; border-radius: 0.5rem; flex-shrink: 0; transition: all 0.2s; margin-top: 0.125rem; }
+    .custom-checkbox:hover input ~ .checkbox-box { border-color: #3b82f6; }
+    .custom-checkbox input:checked ~ .checkbox-box { background-color: #3b82f6; border-color: #3b82f6; }
+    .checkbox-box:after { content: ""; position: absolute; display: none; left: 0.5rem; top: 0.25rem; width: 0.4rem; height: 0.75rem; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+    .custom-checkbox input:checked ~ .checkbox-box:after { display: block; }
+    
+    .checkbox-text { display: flex; flex-direction: column; }
+    .checkbox-text strong { font-size: 0.9375rem; color: #1e293b; font-weight: 700; }
+    .checkbox-text span { font-size: 0.8125rem; color: #64748b; font-weight: 500; }
+</style>
+{% endblock %}

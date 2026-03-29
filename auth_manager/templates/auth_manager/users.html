@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container" style="max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+        <div>
+            <h1 class="text-3xl font-bold" style="margin-bottom: 0.5rem;">Gestión de Usuarios</h1>
+            <p style="color: var(--text-muted); font-size: 0.9375rem;">Administre los accesos y privilegios de la plataforma.</p>
+        </div>
+        <div style="display: flex; gap: 1.25rem; align-items: center;">
+            <div class="stats-badge">
+                <span class="label">Total Usuarios:</span>
+                <span class="value">{{ users|length }}</span>
+            </div>
+            <a href="{{ url_for('admin.add_user') }}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 0.875rem;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 0.5rem;"><path d="M12 5v14M5 12h14"></path></svg>
+                Añadir Usuario
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages" style="margin-bottom: 2rem;">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" style="margin-bottom: 0.5rem; padding: 1rem; border-radius: 0.5rem; font-weight: 600;">{{ message }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="card" style="padding: 0; overflow: visible; background: white; border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th style="padding-left: 2rem;">Usuario</th>
+                    <th>Email</th>
+                    <th>Proveedor</th>
+                    <th>Estado</th>
+                    <th>Rol</th>
+                    <th style="text-align: center; width: 80px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="user-row">
+                    <td style="padding-left: 2rem;">
+                        <div style="font-weight: 700; color: var(--text-color); font-size: 1rem;">{{ user.username }}</div>
+                    </td>
+                    <td style="color: var(--text-muted); font-weight: 500;">{{ user.email }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            {% if user.auth_provider == 'google' %}
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: #4285F4;"><path d="M12.545 11.027L21.114 11.027C21.313 11.666 21.439 12.36 21.439 13.123C21.439 18.361 17.915 22.049 12.545 22.049C6.837 22.049 2.227 17.439 2.227 11.731C2.227 6.023 6.837 1.413 12.545 1.413C15.337 1.413 17.674 2.437 19.467 4.102L15.932 7.514C14.992 6.611 13.916 6.136 12.545 6.136C9.539 6.136 7.098 8.441 7.098 12.284C7.098 16.128 9.539 18.432 12.545 18.432C15.551 18.432 17.919 16.88 17.919 13.792L12.545 13.792L12.545 11.027Z"></path></svg>
+                            {% endif %}
+                            <span class="provider-text">{{ user.auth_provider|capitalize }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if user.is_approved %}
+                            <span class="badge badge-success">Aprobado</span>
+                        {% else %}
+                            <span class="badge badge-warning">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if user.is_admin %}badge-admin{% else %}badge-user{% endif %}">
+                            {% if user.is_admin %}Administrador{% else %}Usuario{% endif %}
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <!-- Action Gear Dropdown -->
+                        <div class="action-dropdown">
+                            <button class="gear-btn" aria-label="Acciones de usuario">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                {% if not user.is_approved %}
+                                <form action="{{ url_for('admin.approve_user', user_id=user.id) }}" method="POST">
+                                    <button type="submit" class="dropdown-item success">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                                        Aprobar Cuenta
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="dropdown-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    Editar Perfil
+                                </a>
+
+                                <form action="{{ url_for('admin.toggle_admin', user_id=user.id) }}" method="POST">
+                                    <button type="submit" class="dropdown-item">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                        Cambiar Rol
+                                    </button>
+                                </form>
+
+                                {% if current_user.id != user.id %}
+                                <div class="dropdown-divider"></div>
+                                <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar a {{ user.username }}?');">
+                                    <button type="submit" class="dropdown-item delete">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        Eliminar Usuario
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .stats-badge { background: #f1f5f9; padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid var(--border-color); display: flex; gap: 0.5rem; }
+    .stats-badge .label { font-weight: 600; font-size: 0.8125rem; color: var(--text-muted); }
+    .stats-badge .value { font-weight: 800; font-size: 0.8125rem; color: var(--primary-color); }
+
+    .user-table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+    .user-table th { background: #f8fafc; padding: 1.25rem 1rem; text-align: left; font-weight: 700; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #f1f5f9; }
+    .user-row { transition: background 0.2s; }
+    .user-row:hover { background: #fafafa; }
+    .user-table td { padding: 1.25rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+    .badge { padding: 0.35rem 0.85rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef3c7; color: #92400e; }
+    .badge-admin { background: #dbeafe; color: #1e40af; }
+    .badge-user { background: #f1f5f9; color: #475569; }
+    .provider-text { font-size: 0.8125rem; font-weight: 600; color: #64748b; }
+
+    /* Gear Dropdown Styling */
+    .action-dropdown { position: relative; display: inline-block; }
+    .gear-btn { 
+        background: transparent; border: 1px solid transparent; color: #94a3b8; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .gear-btn:hover { background: #f1f5f9; color: var(--primary-color); border-color: #e2e8f0; }
+
+    .dropdown-menu { 
+        display: none; position: absolute; right: 0; top: 100%; min-width: 200px; background: white; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); z-index: 1000; padding: 0.5rem; border: 1px solid var(--border-color); margin-top: 0.5rem;
+    }
+    .action-dropdown:hover .dropdown-menu, .action-dropdown:focus-within .dropdown-menu { display: block; }
+
+    .dropdown-item { 
+        display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; font-size: 0.875rem; font-weight: 600; color: #475569; border-radius: 0.5rem; text-decoration: none; border: none; background: transparent; cursor: pointer; transition: all 0.2s; text-align: left;
+    }
+    .dropdown-item:hover { background: #f8fafc; color: var(--primary-color); }
+    .dropdown-item.success:hover { background: #f0fdf4; color: #166534; }
+    .dropdown-item.delete:hover { background: #fef2f2; color: #991b1b; }
+    .dropdown-divider { height: 1px; background: #f1f5f9; margin: 0.5rem 0; }
+</style>
+{% endblock %}
