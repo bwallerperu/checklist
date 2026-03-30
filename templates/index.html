@@ -1,104 +1,218 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="catalog-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3.5rem; gap: 2rem; flex-wrap: wrap;">
+<div class="catalog-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; gap: 2rem; flex-wrap: wrap;">
     <div style="flex: 1; min-width: 320px;">
-        <h1 class="text-4xl font-extrabold" style="margin: 0 0 0.75rem 0; letter-spacing: -0.025em;">Catálogo de Procedimientos</h1>
-        <p style="color: var(--text-muted); font-size: 1.125rem; max-width: 600px; margin-bottom: 1.5rem;">Seleccione una fila para ejecutar la lista o utilice el engranaje para gestionar su configuración.</p>
-        <a href="{{ url_for('create') }}" class="btn btn-primary" style="height: 42px; padding: 0 1.5rem; font-size: 0.875rem;">
+        <h1 class="text-4xl font-extrabold" style="margin: 0; letter-spacing: -0.025em;">Catálogo de Procedimientos</h1>
+        <a href="{{ url_for('create') }}" class="btn btn-primary" style="padding: 0 1.25rem; margin-top: 1rem;">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 0.5rem;"><path d="M12 5v14M5 12h14"></path></svg>
             Crear Nueva Lista
         </a>
     </div>
     
-    <div style="display: flex; gap: 1.25rem; align-items: center;">
-        <div class="search-wrapper" style="position: relative;">
-            <input type="text" id="catalog-search" placeholder="Buscar checklist..." style="padding-left: 2.75rem; width: 280px;">
-            <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
+        <p style="color: var(--text-muted); font-size: 0.875rem; font-weight: 500; margin: 0; max-width: 400px; text-align: right;">
+            Seleccione una fila para ejecutar la lista o <br> utilice el engranaje para gestionar su configuración.
+        </p>
+        <div style="display: flex; gap: 1.25rem; align-items: center;">
+            <div class="search-wrapper" style="position: relative;">
+                <input type="text" id="catalog-search" placeholder="Buscar checklist..." style="padding-left: 2.75rem; width: 280px;">
+                <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted);" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
 
-        <div class="view-toggle-group" style="display: flex; background: #f1f5f9; padding: 0.375rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
-            <button onclick="setView('grid')" id="btn-grid" class="toggle-btn" title="Cuadrícula">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-            </button>
-            <button onclick="setView('list')" id="btn-list" class="toggle-btn active" title="Lista">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-            </button>
+            <div class="view-toggle-group" style="display: flex; background: #f1f5f9; padding: 0.25rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; height: 38px; align-items: center; box-sizing: border-box;">
+                <button onclick="setView('grid')" id="btn-grid" class="toggle-btn" title="Cuadrícula" style="height: 30px;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                </button>
+                <button onclick="setView('list')" id="btn-list" class="toggle-btn active" title="Lista" style="height: 30px;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="checklist-container" class="view-list">
-    {% for checklist in checklists %}
-    <div class="checklist-item-wrapper" data-title="{{ checklist.title.lower() }}">
-        <a href="{{ url_for('view_checklist', id=checklist.id) }}" class="checklist-item-body">
-            <div class="item-icon-circle">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div class="item-text">
-                <h3 class="item-title">{{ checklist.title }}</h3>
-                <div class="item-subtext">
-                    <span class="meta-pill">{{ checklist.steps|length }} pasos</span>
-                    <span class="meta-dot"></span>
-                    <span class="meta-text">Por {{ checklist.created_by }}</span>
-                </div>
-            </div>
-        </a>
-        
-        <div class="item-action-gear">
-            <a href="{{ url_for('edit_checklist', id=checklist.id) }}" class="gear-link" title="Editar configuración">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </a>
-        </div>
+    <!-- List View: Formal Sortable Table -->
+    <div class="list-view-table-wrapper card" style="padding: 0; overflow: hidden; border-radius: 1rem;">
+        <table class="user-table" id="catalog-table">
+            <thead>
+                <tr>
+                    <th style="padding-left: 2rem; cursor: pointer; user-select: none;" onclick="sortCatalog(0)">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            Nombre <span class="sort-indicator" id="sort-0">↕</span>
+                        </div>
+                    </th>
+                    <th style="cursor: pointer; user-select: none;" onclick="sortCatalog(1)">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            Fecha de Creación <span class="sort-indicator" id="sort-1">↕</span>
+                        </div>
+                    </th>
+                    <th style="cursor: pointer; user-select: none;" onclick="sortCatalog(2)">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            Autor <span class="sort-indicator" id="sort-2">↕</span>
+                        </div>
+                    </th>
+                    <th style="cursor: pointer; user-select: none;" onclick="sortCatalog(3)">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            Pasos <span class="sort-indicator" id="sort-3">↕</span>
+                        </div>
+                    </th>
+                    <th style="text-align: right; padding-right: 2rem;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for checklist in checklists %}
+                <tr class="checklist-row-list" 
+                    data-title="{{ checklist.title.lower() }}" 
+                    data-url="{{ url_for('view_checklist', id=checklist.id) }}"
+                    style="cursor: pointer; transition: background 0.2s;">
+                    <td style="padding-left: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="item-icon-circle dynamic-icon" data-icon="{{ checklist.icon or 'clipboard' }}" style="padding: 0.4rem;">
+                                <!-- Icon injected by JS -->
+                            </div>
+                            <span style="font-weight: 700; color: #0f172a;">{{ checklist.title }}</span>
+                        </div>
+                    </td>
+                    <td data-sort="{{ (checklist.created_at.isoformat() if checklist.created_at.isoformat else checklist.created_at) if checklist.created_at else '' }}">
+                        {% if checklist.created_at and checklist.created_at.strftime %}
+                            {{ checklist.created_at.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            <span style="color: var(--text-muted); font-style: italic;">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-user">{{ checklist.created_by or 'Sistema' }}</span>
+                    </td>
+                    <td>
+                        <span class="meta-pill" style="background: #f1f5f9; color: #475569; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
+                            {{ checklist.steps|length }} pasos
+                        </span>
+                    </td>
+                    <td style="text-align: right; padding-right: 2rem;" onclick="event.stopPropagation();">
+                        <div style="display: flex; justify-content: flex-end; align-items: center;">
+                            <a href="{{ url_for('edit_checklist', id=checklist.id) }}" class="gear-link" title="Editar configuración">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    {% else %}
+
+    <!-- Grid View: Card Layout -->
+    <div class="grid-view-container" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% for checklist in checklists %}
+        <div class="checklist-grid-item card" style="padding: 2rem; position: relative;">
+            <a href="{{ url_for('view_checklist', id=checklist.id) }}" style="text-decoration: none; color: inherit;">
+                <div class="item-icon-circle dynamic-icon" data-icon="{{ checklist.icon or 'clipboard' }}" style="margin-bottom: 1.5rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;">
+                    <!-- Icon injected by JS -->
+                </div>
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 800;">{{ checklist.title }}</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+                    <span class="badge badge-user">{{ checklist.created_by }}</span>
+                    <span class="meta-pill">{{ checklist.steps|length }} pasos</span>
+                </div>
+            </a>
+            <div style="position: absolute; top: 1.5rem; right: 1.5rem;">
+                <a href="{{ url_for('edit_checklist', id=checklist.id) }}" class="gear-link">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not checklists %}
     <div class="empty-state card" style="text-align: center; padding: 6rem 2rem; border-style: dashed; background: #fafafa;">
         <div style="background: #eff6ff; color: var(--primary-color); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem auto; border: 2px solid #dbeafe;">
             <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         </div>
         <h2 class="text-2xl font-bold" style="margin-bottom: 0.75rem;">Su Catálogo está Vacío</h2>
         <p style="color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1.125rem;">Comience creando un nuevo procedimiento operativo ahora mismo.</p>
-        <a href="{{ url_for('create') }}" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1rem;">+ Crear Primera Lista</a>
+        <a href="{{ url_for('create') }}" class="btn btn-primary" style="padding: 0 2.5rem; font-size: 1rem;">+ Crear Primera Lista</a>
     </div>
-    {% endfor %}
+    {% endif %}
 </div>
 
 <style>
     .toggle-btn { padding: 0.5rem 0.75rem; border: none; background: transparent; color: #64748b; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
     .toggle-btn.active { background: #ffffff; color: var(--primary-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
     
-    .view-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    .view-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-
-    .checklist-item-wrapper { 
-        background: white; border: 1px solid var(--border-color); border-radius: 1rem; display: flex; align-items: center; transition: all 0.2s; position: relative; overflow: hidden;
-    }
-    .checklist-item-wrapper:hover { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04); }
-
-    .checklist-item-body { 
-        flex: 1; display: flex; align-items: center; gap: 1.5rem; padding: 1.25rem 2rem; text-decoration: none; color: inherit; 
-    }
+    .view-list .list-view-table-wrapper { display: block; }
+    .view-list .grid-view-container { display: none; }
     
-    .item-icon-circle { background: #eff6ff; color: var(--primary-color); padding: 0.75rem; border-radius: 50%; flex-shrink: 0; transition: all 0.2s; }
-    .checklist-item-body:hover .item-icon-circle { background: var(--primary-color); color: white; transform: rotate(10deg); }
+    .view-grid .list-view-table-wrapper { display: none; }
+    .view-grid .grid-view-container { display: grid; }
 
-    .item-title { margin: 0; font-size: 1.125rem; font-weight: 800; color: #0f172a; letter-spacing: -0.0125em; }
-    .item-subtext { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.375rem; }
-    .meta-pill { background: #f1f5f9; color: #475569; padding: 0.125rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; }
-    .meta-dot { width: 4px; height: 4px; background: #cbd5e1; border-radius: 50%; }
-    .meta-text { color: var(--text-muted); font-size: 0.8125rem; font-weight: 500; }
+    .checklist-row-list:hover { background-color: #f8fafc; }
+    .checklist-row-list:hover .badge-user { background-color: var(--primary-color); color: white; }
 
-    .item-action-gear { padding: 1.25rem 2rem; border-left: 1px solid #f1f5f9; }
+    .sort-indicator { font-family: inherit; font-size: 0.875rem; color: #94a3b8; transition: color 0.2s; }
+    th:hover .sort-indicator { color: var(--primary-color); }
+    
+    .item-icon-circle { background: #eff6ff; color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .checklist-row-list:hover .item-icon-circle { background: var(--primary-color); color: white; }
+
     .gear-link { color: #94a3b8; transition: all 0.2s; display: flex; align-items: center; }
     .gear-link:hover { color: var(--primary-color); transform: rotate(45deg); }
-
-    /* For Grid View adjustments if toggled */
-    .view-grid .checklist-item-wrapper { flex-direction: column; align-items: stretch; text-align: center; }
-    .view-grid .checklist-item-body { flex-direction: column; padding: 2.5rem 1.5rem; }
-    .view-grid .item-action-gear { border-left: none; border-top: 1px solid #f1f5f9; padding: 1rem; display: flex; justify-content: center; }
 </style>
 
+<script src="{{ url_for('static', filename='icons.js') }}"></script>
 <script>
+    function sortCatalog(columnIndex) {
+        const table = document.getElementById("catalog-table");
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+        
+        if (currentSort === columnIndex) {
+            currentDir *= -1;
+        } else {
+            currentSort = columnIndex;
+            currentDir = 1;
+        }
+
+        // Update UI Indicators
+        for (let i = 0; i < 4; i++) {
+            const indicator = document.getElementById(`sort-${i}`);
+            if (i === columnIndex) {
+                indicator.innerText = currentDir === 1 ? '↑' : '↓';
+                indicator.style.color = 'var(--primary-color)';
+            } else {
+                indicator.innerText = '↕';
+                indicator.style.color = '#94a3b8';
+            }
+        }
+
+        rows.sort((a, b) => {
+            let cellA = a.cells[columnIndex].innerText.trim();
+            let cellB = b.cells[columnIndex].innerText.trim();
+
+            if (columnIndex === 1) { // Date
+                cellA = a.cells[columnIndex].getAttribute('data-sort') || cellA;
+                cellB = b.cells[columnIndex].getAttribute('data-sort') || cellB;
+            } else if (columnIndex === 3) { // Steps (Numeric)
+                cellA = parseInt(cellA) || 0;
+                cellB = parseInt(cellB) || 0;
+                return currentDir * (cellA - cellB);
+            }
+
+            return currentDir * cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function renderDynamicIcons() {
+        document.querySelectorAll('.dynamic-icon').forEach(el => {
+            const iconName = el.getAttribute('data-icon') || 'clipboard';
+            el.innerHTML = iconRegistry[iconName] || iconRegistry['clipboard'];
+        });
+    }
+
     function setView(mode) {
         const container = document.getElementById('checklist-container');
         const gridBtn = document.getElementById('btn-grid');
@@ -115,19 +229,36 @@
             gridBtn.classList.remove('active');
             localStorage.setItem('checklistView', 'list');
         }
+        renderDynamicIcons(); // Ensure icons are rendered in the newly visible container
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Default to list view if no preference
         const savedView = localStorage.getItem('checklistView') || 'list';
         setView(savedView);
+        renderDynamicIcons();
         
+        // Row Navigation for List View
+        document.querySelectorAll('.checklist-row-list').forEach(row => {
+            row.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                if (url) window.location.href = url;
+            });
+        });
+
         // Search Logic
         const searchInput = document.getElementById('catalog-search');
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            document.querySelectorAll('.checklist-item-wrapper').forEach(item => {
-                const title = item.getAttribute('data-title');
+            
+            // Filter List View
+            document.querySelectorAll('.checklist-row-list').forEach(row => {
+                const title = row.getAttribute('data-title');
+                row.style.display = title.includes(term) ? '' : 'none';
+            });
+
+            // Filter Grid View
+            document.querySelectorAll('.checklist-grid-item').forEach(item => {
+                const title = item.querySelector('h3').innerText.toLowerCase();
                 item.style.display = title.includes(term) ? '' : 'none';
             });
         });

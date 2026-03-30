@@ -64,22 +64,34 @@
                 </div>
             </div>
 
-            <!-- Section 3: Security (Only if new user or specifically requested, but here we add it for new user) -->
-            {% if not user %}
+            <!-- Section 3: Security (Password Reset for existing, Initial Password for new) -->
             <div class="security-section pt-4 mt-12">
-                <h3 class="text-xl font-bold mb-8" style="color: #1e293b;">Seguridad de la Cuenta</h3>
+                <h3 class="text-xl font-bold mb-8" style="color: #1e293b;">
+                    {{ 'Seguridad y Acceso' if user else 'Seguridad de la Cuenta' }}
+                </h3>
                 <div class="grid-row-2">
                     <div class="form-group">
-                        <label for="password" class="label-small">Contraseña Inicial</label>
-                        <input type="password" id="password" name="password" required placeholder="Mínimo 8 caracteres">
+                        <label for="password" class="label-small">
+                            {{ 'Cambiar Contraseña' if user else 'Contraseña Inicial' }}
+                        </label>
+                        <input type="password" id="password" name="password" 
+                               {% if not user %}required{% endif %} 
+                               placeholder="{{ 'Dejar en blanco para no cambiar' if user else 'Mínimo 8 caracteres' }}">
                     </div>
                     <div class="form-group">
-                        <label class="label-small">Confirmación</label>
-                        <input type="password" placeholder="Repita la contraseña (opcional aquí)">
+                        <label class="label-small">
+                            {{ 'Estado de Cuenta' if user else 'Confirmación' }}
+                        </label>
+                        {% if user %}
+                            <div style="height: 52px; display: flex; align-items: center; color: #64748b; font-weight: 600; font-size: 0.875rem; border: 1.5px dashed #cbd5e1; border-radius: 0.875rem; padding: 0 1.5rem;">
+                                Proovedor: <strong>{{ user.auth_provider | upper }}</strong>
+                            </div>
+                        {% else %}
+                            <input type="password" placeholder="Repita la contraseña">
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            {% endif %}
 
             <!-- Footer Buttons -->
             <div class="actions-footer mt-16 pt-8" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">

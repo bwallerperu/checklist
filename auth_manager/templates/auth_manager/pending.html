@@ -13,9 +13,8 @@
             ¿Cree que esto es un error? Contacte a su administrador del sistema.
         </p>
 
-        <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center;">
-            <a href="{{ url_for('index') }}" class="btn">Volver al Catálogo</a>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">Cerrar Sesión</a>
+        <div style="margin-top: 2.5rem; display: flex; justify-content: center;">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-primary" style="min-width: 200px;">Cerrar Sesión</a>
         </div>
     </div>
 </div>

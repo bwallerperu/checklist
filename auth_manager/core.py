@@ -6,7 +6,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from auth_manager.models import User
-from auth_manager.oauth_client import oauth
 from functools import wraps
 
 auth_bp = Blueprint('auth', __name__, template_folder='templates')
@@ -35,7 +34,7 @@ def login():
             login_user(user)
             return redirect(url_for('index'))
         else:
-            flash('Invalid email or password', 'error')
+            flash('Email o contraseña inválidos', 'error')
             
     return render_template('auth_manager/login.html')
 
@@ -50,10 +49,10 @@ def register():
         password = request.form.get('password')
         
         if User.get_by_email(email):
-            flash('Email already registered', 'error')
+            flash('El correo ya está registrado', 'error')
         else:
             User.create_user(username, email, password, auth_provider='local')
-            flash('Registration successful! Please wait for admin approval.', 'success')
+            flash('¡Registro exitoso! Por favor espere la aprobación del administrador.', 'success')
             return redirect(url_for('auth.login'))
             
     return render_template('auth_manager/register.html')
@@ -71,31 +70,37 @@ def pending():
         return redirect(url_for('index'))
     return render_template('auth_manager/pending.html')
 
-# Google OAuth Routes
-@auth_bp.route('/login/google')
-def google_auth():
-    redirect_uri = url_for('auth.google_callback', _external=True)
-    return oauth.google.authorize_redirect(redirect_uri)
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+        
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        user = User.get_by_email(email)
+        
+        if not user:
+            # security: don't reveal if user exists, but give a generic message
+            flash('Si el correo está registrado, la contraseña ha sido actualizada.', 'success')
+            return redirect(url_for('auth.login'))
 
-@auth_bp.route('/login/google/callback')
-def google_callback():
-    token = oauth.google.authorize_access_token()
-    user_info = token.get('userinfo')
-    if not user_info:
-        flash('Failed to fetch user info from Google', 'error')
+        if password != confirm_password:
+            flash('Las contraseñas no coinciden.', 'error')
+            return render_template('auth_manager/forgot_password.html')
+            
+        if len(password) < 8:
+            flash('La contraseña debe tener al menos 8 caracteres.', 'error')
+            return render_template('auth_manager/forgot_password.html')
+
+        # Update password and require re-approval
+        user.update_password(password, require_approval=True)
+        flash('Contraseña actualizada. Su cuenta requiere re-aprobación administrativa antes de iniciar sesión.', 'success')
         return redirect(url_for('auth.login'))
-    
-    email = user_info['email']
-    user = User.get_by_email(email)
-    
-    if not user:
-        # Create new Google user
-        username = user_info.get('name', email.split('@')[0])
-        user = User.create_user(username, email, auth_provider='google')
-        flash('Account created with Google! Please wait for admin approval.', 'success')
-    
-    login_user(user)
-    return redirect(url_for('index'))
+        
+    return render_template('auth_manager/forgot_password.html')
 
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required

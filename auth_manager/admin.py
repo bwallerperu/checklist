@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
+from google.cloud import firestore
 from auth_manager.models import db, User
 from functools import wraps
 
@@ -100,6 +101,16 @@ def edit_user(user_id):
     if request.method == 'POST':
         user.username = request.form.get('username')
         user.email = request.form.get('email')
+        
+        # Handle password reset if provided
+        new_password = request.form.get('password')
+        if new_password:
+            if user.auth_provider != 'local':
+                flash('Cannot reset password for external provider users (e.g. Google)', 'error')
+            else:
+                user.update_password(new_password)
+                flash('Password updated successfully', 'success')
+
         user.is_admin = 'is_admin' in request.form
         user.is_approved = 'is_approved' in request.form
         user.save()
@@ -134,3 +145,69 @@ def reset_password_admin(user_id):
             user.update_password(new_password)
             flash(f'Password reset for {user.username}', 'success')
     return redirect(url_for('admin.list_users'))
+
+@admin_bp.route('/admin/company', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def company_settings():
+    config_ref = db.collection('company_config').document('settings')
+    
+    if request.method == 'POST':
+        config_data = {
+            'name': request.form.get('name'),
+            'address': request.form.get('address'),
+            'phone': request.form.get('phone'),
+            'email': request.form.get('email'),
+            'footer_text': request.form.get('footer_text'),
+            'updated_at': firestore.SERVER_TIMESTAMP,
+            'updated_by': current_user.username
+        }
+        config_ref.set(config_data, merge=True)
+        flash('Configuración de la empresa actualizada', 'success')
+        return redirect(url_for('admin.company_settings'))
+        
+    config_doc = config_ref.get()
+    config = config_doc.to_dict() if config_doc.exists else {}
+    
+    return render_template('auth_manager/company_settings.html', config=config)
+
+@admin_bp.route('/admin/results')
+@login_required
+@admin_required
+def list_results():
+    results_ref = db.collection('checklist_results').order_by('deployed_at', direction=firestore.Query.DESCENDING).stream()
+    results = []
+    unique_titles = set()
+    unique_users = set()
+    for doc in results_ref:
+        data = doc.to_dict() | {'id': doc.id}
+        results.append(data)
+        if 'checklist_snapshot' in data and 'title' in data['checklist_snapshot']:
+            unique_titles.add(data['checklist_snapshot']['title'])
+        if 'deployed_by' in data:
+            unique_users.add(data['deployed_by'])
+            
+    return render_template('auth_manager/results.html', 
+                           results=results, 
+                           unique_titles=sorted(list(unique_titles)),
+                           unique_users=sorted(list(unique_users)))
+
+@admin_bp.route('/admin/results/<result_id>')
+@login_required
+@admin_required
+def view_result(result_id):
+    doc = db.collection('checklist_results').document(result_id).get()
+    if not doc.exists:
+        flash('Resultado no encontrado', 'error')
+        return redirect(url_for('admin.list_results'))
+    
+    result = doc.to_dict() | {'id': doc.id}
+    return render_template('auth_manager/view_result.html', result=result)
+
+@admin_bp.route('/admin/results/delete/<result_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_result(result_id):
+    db.collection('checklist_results').document(result_id).delete()
+    flash('Resultado eliminado correctamente', 'success')
+    return redirect(url_for('admin.list_results'))

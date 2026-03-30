@@ -2,12 +2,14 @@ from flask_login import LoginManager
 from auth_manager.models import User
 from auth_manager.core import auth_bp, approved_only
 from auth_manager.admin import admin_bp
-from auth_manager.oauth_client import init_oauth
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from the project root
+project_root = Path(__file__).parent.parent
+env_path = project_root / '.env'
+load_dotenv(dotenv_path=env_path)
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -22,12 +24,17 @@ def init_auth(app):
     """
     Convenience function to register all auth components to a Flask app.
     """
-    # Configure app
-    app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-it')
+    # Configure app secret key with fallback
+    secret_key = os.environ.get('SECRET_KEY')
+    if not secret_key:
+        # Fallback for development if .env is missing/unreadable
+        secret_key = 'dev-secret-key-replace-this-in-production'
+        print("WARNING: SECRET_KEY not found in environment. Using development fallback.")
     
+    app.secret_key = secret_key
+
     # Initialize extensions
     login_manager.init_app(app)
-    init_oauth(app)
     
     # Register blueprints
     app.register_blueprint(auth_bp)

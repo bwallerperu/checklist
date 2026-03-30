@@ -22,8 +22,11 @@ body {
 header {
     background: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
-    padding: 1.25rem 2rem;
+    padding: 0.75rem 2rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 nav {
@@ -59,22 +62,40 @@ nav {
     text-decoration: none;
     color: var(--text-color);
     font-weight: 600;
-    font-size: 0.9375rem;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    padding: 0 0.75rem;
     transition: all 0.2s;
-    height: 38px;
+    height: 48px; /* Fixed height for consistent underline */
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -0.75rem; /* Offset header padding to reach the bottom border */
+}
+
+.nav-item svg {
+    color: var(--text-muted);
+    transition: color 0.2s;
 }
 
 .nav-item:hover {
-    background-color: #f1f5f9;
+    color: var(--primary-color);
+    background-color: transparent;
+}
+
+.nav-item:hover svg {
+    color: var(--primary-color);
 }
 
 .nav-item.active {
-    background-color: var(--primary-color) !important;
-    color: white !important;
+    background-color: transparent !important;
+    color: var(--primary-color) !important;
+    font-weight: 700;
+    border-bottom-color: var(--primary-color);
+}
+
+.nav-item.active svg {
+    color: var(--primary-color);
 }
 
 .nav-separator {
@@ -152,15 +173,15 @@ main {
     justify-content: center;
     background-color: var(--primary-color);
     color: white;
-    padding: 0.875rem 1.5rem; /* Standardized for 44-48px height */
+    padding: 0 1.25rem;
     border-radius: 0.5rem;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     border: 1px solid transparent;
     cursor: pointer;
     transition: background-color 0.2s, box-shadow 0.2s;
-    font-size: 0.9375rem;
-    height: 48px; /* Fixed height for inputs/buttons unity */
+    font-size: 0.875rem;
+    height: 38px;
     box-sizing: border-box;
 }
 
@@ -182,9 +203,9 @@ main {
 }
 
 .btn-sm {
-    padding: 0.5rem 1rem;
-    height: 36px;
-    font-size: 0.875rem;
+    padding: 0 0.875rem;
+    height: 32px;
+    font-size: 0.8125rem;
 }
 
 .form-group {
@@ -200,8 +221,7 @@ label {
 }
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="file"]),
-select,
-textarea {
+select {
     width: 100%;
     padding: 0 1.25rem; /* Standardized side padding */
     border: 1.5px solid var(--primary-color);
@@ -209,9 +229,24 @@ textarea {
     font-size: 1rem;
     font-weight: 600; /* Standardized weight */
     background: #ffffff;
-    height: 48px; /* Ensuring perfect match with buttons */
+    height: 38px;
     box-sizing: border-box;
     transition: all 0.2s ease;
+}
+
+textarea {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    border: 1.5px solid var(--primary-color);
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    min-height: 80px;
+    resize: vertical;
 }
 
 input:focus {
@@ -308,9 +343,8 @@ input:focus {
     color: #ef4444;
     text-decoration: none;
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     transition: all 0.2s;
-    margin-top: 0.25rem;
 }
 
 .logout-pill-btn:hover {
@@ -322,4 +356,113 @@ input:focus {
 
 .logout-pill-btn svg {
     stroke: currentColor;
+}
+
+/* Company Configuration Styles */
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.logo-link:hover {
+    transform: scale(1.02);
+}
+
+.site-logo {
+    max-height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+}
+
+/* Compact Footer */
+.compact-footer {
+    background: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    margin-top: auto;
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.footer-company-name {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.footer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.125rem;
+}
+
+.footer-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.footer-copyright {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .footer-right {
+        align-items: flex-start;
+    }
+}
+
+/* Flash Messages */
+.flash {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.flash-success {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #dcfce7;
+}
+
+.flash-error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
 }

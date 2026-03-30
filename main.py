@@ -6,12 +6,26 @@ from auth_manager import init_auth, approved_only
 
 app = Flask(__name__)
 
+# Make enumerate available in templates
+app.jinja_env.globals.update(enumerate=enumerate)
+
 # Initialize Authentication Module
 init_auth(app)
 
 # Initialize Firestore
 # Note: authentication is handled automatically by Google Cloud Run (and ADC locally)
 db = firestore.Client(database='checklist')
+
+@app.context_processor
+def inject_company_config():
+    """Inject company configuration into all templates."""
+    try:
+        config_doc = db.collection('company_config').document('settings').get()
+        if config_doc.exists:
+            return {'company_config': config_doc.to_dict()}
+    except Exception as e:
+        print(f"Error fetching company config: {e}")
+    return {'company_config': {}}
 
 @app.route('/')
 @login_required
@@ -47,6 +61,7 @@ def create():
             db.collection('checklist_configs').add({
                 'title': title,
                 'steps': steps,
+                'icon': request.form.get('icon', 'clipboard'),
                 'created_at': firestore.SERVER_TIMESTAMP,
                 'created_by': current_user.username
             })
@@ -127,6 +142,7 @@ def edit_checklist(id):
             doc_ref.update({
                 'title': title,
                 'steps': steps,
+                'icon': request.form.get('icon', 'clipboard'),
                 'updated_at': firestore.SERVER_TIMESTAMP,
                 'updated_by': current_user.username
             })
