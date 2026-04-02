@@ -46,6 +46,36 @@
             </div>
         </div>
 
+        <div class="form-group mb-10" style="border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; margin-top: 2rem;">
+            <label class="label-small" style="color: var(--primary-color);">Publicación y Asignación</label>
+            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <input type="checkbox" id="is_public" name="is_public" {% if checklist.is_public %}checked{% endif %} style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
+                        <div>
+                            <label for="is_public" style="font-weight: 700; cursor: pointer;">Lista Pública</label>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Visible para todos los usuarios aprobados.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="flex: 2; min-width: 300px;">
+                    <label class="label-small" style="font-size: 0.65rem; margin-bottom: 0.5rem;">Asignar a Usuarios Específicos</label>
+                    <div style="max-height: 160px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1rem; background: #fafafa;">
+                        {% for user in users %}
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="user_{{ loop.index }}" name="assigned_to" value="{{ user }}" 
+                                   {% if user in checklist.get('assigned_to', []) %}checked{% endif %}
+                                   style="width: 1rem; height: 1rem; cursor: pointer;">
+                            <label for="user_{{ loop.index }}" style="font-size: 0.875rem; cursor: pointer;">{{ user }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Deje vacío si la lista es pública. Si no es pública, solo los usuarios seleccionados podrán verla.</p>
+                </div>
+            </div>
+        </div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <h3 class="label-small" style="margin: 0;">Pasos del Procedimiento</h3>
             <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Modifique las descripciones o el orden de los pasos.</span>
@@ -80,8 +110,8 @@
             </button>
             
             <div style="display: flex; gap: 1rem;">
-                <a href="{{ url_for('index') }}" class="btn btn-outline" style="min-width: 140px; border-color: transparent;">Cancelar</a>
-                <button type="submit" class="btn btn-primary" style="min-width: 200px;">
+                <a href="{{ url_for('catalog') }}" class="btn btn-outline" style="min-width: 140px; border-color: transparent;">Cancelar</a>
+                <button type="submit" id="submit-btn" class="btn btn-primary" style="min-width: 200px;">
                     Guardar Cambios
                 </button>
             </div>
@@ -228,6 +258,25 @@
         renderIconGrid();
         const currentIcon = document.getElementById('icon-input').value;
         selectIcon(currentIcon);
+        
+        // Form submission safety
+        const form = document.querySelector('form[action*="edit_checklist"]');
+        const submitBtn = document.getElementById('submit-btn');
+        if (form && submitBtn) {
+            form.addEventListener('submit', () => {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" style="margin-right:0.5rem; animation: spin 2s linear infinite;">
+                        <path d="M12 2v4m4.242-1.242l-2.828 2.828m4.586 1.414H18m2.828 4.242l-2.828-2.828m-1.414 4.586V18m-4.242 2.828l2.828-2.828m-4.586-1.414H6m-2.828-4.242l2.828 2.828m1.414-4.586V6m4.242-2.828L9.172 6" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path>
+                    </svg>
+                    Guardando...
+                `;
+            });
+        }
     });
 </script>
+
+<style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 {% endblock %}

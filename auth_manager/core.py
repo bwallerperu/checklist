@@ -3,7 +3,7 @@ import os
 # Ensure parent package is in path for standalone runs
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from auth_manager.models import User
 from functools import wraps
@@ -23,7 +23,8 @@ def approved_only(f):
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('admin.list_results'))
+    
     
     if request.method == 'POST':
         email = request.form.get('email')
@@ -32,7 +33,7 @@ def login():
         
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(url_for('admin.list_results'))
         else:
             flash('Email o contraseña inválidos', 'error')
             
@@ -41,7 +42,7 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('admin.list_results'))
         
     if request.method == 'POST':
         username = request.form.get('username')
@@ -67,13 +68,13 @@ def logout():
 @login_required
 def pending():
     if current_user.is_approved:
-        return redirect(url_for('index'))
+        return redirect(url_for('admin.list_results'))
     return render_template('auth_manager/pending.html')
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('admin.list_results'))
         
     if request.method == 'POST':
         email = request.form.get('email')

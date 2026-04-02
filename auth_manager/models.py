@@ -12,6 +12,16 @@ from datetime import datetime, timedelta, timezone
 # Initialize Firestore Client (assuming checklist database)
 db = firestore.Client(database='checklist')
 
+def sanitize_for_session(data):
+    """Ensure all data is JSON serializable for Flask session (convert dates, remove sentinels)."""
+    if isinstance(data, dict):
+        return {k: sanitize_for_session(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [sanitize_for_session(v) for v in data]
+    elif hasattr(data, 'isoformat'): # Handles datetime and specifically firestore.SERVER_TIMESTAMP placeholders that have been resolved
+        return data.isoformat()
+    return data
+
 class User(UserMixin):
     def __init__(self, id, username, email, password=None, auth_provider='local', is_approved=False, is_admin=False, created_at=None, reset_token=None, reset_token_expiry=None):
         self.id = id

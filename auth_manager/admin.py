@@ -3,10 +3,10 @@ import os
 # Ensure parent package is in path for standalone runs
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, current_user
 from google.cloud import firestore
-from auth_manager.models import db, User
+from auth_manager.models import db, User, sanitize_for_session
 from functools import wraps
 
 admin_bp = Blueprint('admin', __name__, template_folder='templates')
@@ -16,7 +16,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin:
             flash('Admin access required', 'error')
-            return redirect(url_for('index'))
+            return redirect(url_for('catalog'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -163,6 +163,11 @@ def company_settings():
             'updated_by': current_user.username
         }
         config_ref.set(config_data, merge=True)
+        
+        # Security/Stability: Ensure data is serializable before saving to session.
+        # This prevents the application from crashing when trying to save the session.
+        session['company_config'] = sanitize_for_session(config_data)
+        
         flash('Configuración de la empresa actualizada', 'success')
         return redirect(url_for('admin.company_settings'))
         
@@ -173,9 +178,22 @@ def company_settings():
 
 @admin_bp.route('/admin/results')
 @login_required
-@admin_required
 def list_results():
-    results_ref = db.collection('checklist_results').order_by('deployed_at', direction=firestore.Query.DESCENDING).stream()
+    if current_user.is_admin:
+        # Admins see everything - Use native sorting for performance
+        results_ref = db.collection('checklist_results')\
+            .order_by('deployed_at', direction=firestore.Query.DESCENDING)\
+            .limit(100)\
+            .stream()
+    else:
+        # Standard users only see their own results
+        # NOTE: We remove .order_by() on the server side because combining it with 
+        # .where() requires a composite index. We sort in Python below instead.
+        results_ref = db.collection('checklist_results')\
+            .where('deployed_by', '==', current_user.username)\
+            .limit(100)\
+            .stream()
+            
     results = []
     unique_titles = set()
     unique_users = set()
@@ -186,6 +204,9 @@ def list_results():
             unique_titles.add(data['checklist_snapshot']['title'])
         if 'deployed_by' in data:
             unique_users.add(data['deployed_by'])
+
+    # Apply manual sort for non-admins (or everyone for consistency)
+    results = sorted(results, key=lambda x: x.get('deployed_at') or 0, reverse=True)
             
     return render_template('auth_manager/results.html', 
                            results=results, 
@@ -194,7 +215,6 @@ def list_results():
 
 @admin_bp.route('/admin/results/<result_id>')
 @login_required
-@admin_required
 def view_result(result_id):
     doc = db.collection('checklist_results').document(result_id).get()
     if not doc.exists:
@@ -202,6 +222,12 @@ def view_result(result_id):
         return redirect(url_for('admin.list_results'))
     
     result = doc.to_dict() | {'id': doc.id}
+    
+    # Security check: Standard users can only view their own results
+    if not current_user.is_admin and result.get('deployed_by') != current_user.username:
+        flash('No tiene permiso para ver este resultado', 'error')
+        return redirect(url_for('admin.list_results'))
+        
     return render_template('auth_manager/view_result.html', result=result)
 
 @admin_bp.route('/admin/results/delete/<result_id>', methods=['POST'])
